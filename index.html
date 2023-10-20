@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Fetcher</title>
+</head>
+<body>
+    <h1>HTML Fetcher</h1>
+    <form id="urlForm">
+        <label for="urlInput">Enter URL:</label>
+        <input type="text" id="urlInput" name="url" required>
+        <button type="submit">Fetch HTML</button>
+    </form>
+    <div id="htmlContent"></div>
+
+    <script>
+        // JavaScript code to handle form submission
+        document.getElementById('urlForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = document.getElementById('urlInput').value;
+            fetch('http://localhost:3000/query/?url=' + encodeURIComponent(url))
+                .then(response => response.text())
+                .then(html => {
+                    console.log(html);
+                    // document.getElementById('htmlContent').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>

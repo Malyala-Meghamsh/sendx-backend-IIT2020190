@@ -33,7 +33,7 @@ func getCacheFileName(url string) string {
 	url = strings.ReplaceAll(url, "<", "_")
 	url = strings.ReplaceAll(url, ">", "_")
 	url = strings.ReplaceAll(url, "/", "_")
-	return cachePath + url + ".html"
+	return cachePath + url + ".txt"
 }
 
 func GetCachedContent(url string, cacheMutex *sync.RWMutex) (string, error) {

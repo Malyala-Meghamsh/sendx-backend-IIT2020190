@@ -64,6 +64,7 @@ func FetchContent(inputURL string, isPaidCustomer bool) (string, error) {
 		error_handler.LogError(err_getCachedContent, "Unable to get cached content of url : "+inputURL, nil)
 		if err_getCachedContent != nil {
 			// If unable to fetch from file
+			delete(cache.url, inputURL)
 			return "", err_getCachedContent
 		}
 		// fmt.Println("Value Found No need To Compute")

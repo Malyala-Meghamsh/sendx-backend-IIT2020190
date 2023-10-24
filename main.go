@@ -178,6 +178,7 @@ func Worker(id int, forPaid bool) {
 		case <-shutdown:
 			return //Signal for shutting down
 		case job := <-JobQueue:
+			fmt.Printf("Job done by worker with job id : %d\n", id)
 			currentTime := time.Now()
 
 			//Removing requests which are older than 1 hour

@@ -65,6 +65,8 @@ http://localhost:3000/
 - To Adjust the crawling speed per hour per worker.
     `http://localhost:3000/api/setSpeed?speed={setSpeed}`
     You can set the max pages that a worker can crawl using this api.
-
+ ## Technologies Used
+ - Golang (Backend)
+ - GoQuery allows parsing and querying HTML documents thus making crawling easier
  ## Demo Of Project
- Link[]
+ - [Link]()

@@ -85,6 +85,7 @@ func setSpeed(w http.ResponseWriter, r *http.Request) {
 }
 
 // To handle url crawl requests
+// Creating job and pushing into corresponding job queue
 func CrawlHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Query().Get("url")
 	isPayingCustomer := false
@@ -243,6 +244,7 @@ func initWorkers(new_paidWorkers, new_unpaidWorkers int) {
 	paidJobQueue = newPaidJobQueue
 	nonPaidJobQueue = newNonPaidJobQueue
 	close(shutdown)
+
 	shutdown = make(chan struct{}, MaxPaidWorkers+MaxPaidWorkers)
 	// fmt.Printf("Number of paid workers set to %d and number of non-paid workers set to %d \n", MaxPaidWorkers, MaxNonPaidWorkers)
 }

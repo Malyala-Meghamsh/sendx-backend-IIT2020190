@@ -215,16 +215,6 @@ func initWorkers(new_paidWorkers, new_unpaidWorkers int) {
 		shutdown <- struct{}{}
 	}
 	wg.Wait()
-	// After all the workers are down new workers are started
-	for i := 1; i <= new_paidWorkers; i++ {
-		wg.Add(1)
-		go Worker(i, true)
-	}
-
-	for i := 1; i <= new_unpaidWorkers; i++ {
-		wg.Add(1)
-		go Worker(i, false)
-	}
 
 	MaxPaidWorkers = new_paidWorkers
 	MaxNonPaidWorkers = new_unpaidWorkers
@@ -243,8 +233,17 @@ func initWorkers(new_paidWorkers, new_unpaidWorkers int) {
 	}
 	paidJobQueue = newPaidJobQueue
 	nonPaidJobQueue = newNonPaidJobQueue
-	close(shutdown)
+	// After all the workers are down new workers are started
+	for i := 1; i <= new_paidWorkers; i++ {
+		wg.Add(1)
+		go Worker(i, true)
+	}
 
+	for i := 1; i <= new_unpaidWorkers; i++ {
+		wg.Add(1)
+		go Worker(i, false)
+	}
+	close(shutdown)
 	shutdown = make(chan struct{}, MaxPaidWorkers+MaxPaidWorkers)
 	// fmt.Printf("Number of paid workers set to %d and number of non-paid workers set to %d \n", MaxPaidWorkers, MaxNonPaidWorkers)
 }

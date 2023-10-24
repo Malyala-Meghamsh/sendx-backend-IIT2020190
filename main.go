@@ -64,8 +64,10 @@ func main() {
 	http.HandleFunc("/api/setSpeed", setSpeed)
 
 	server_err := http.ListenAndServe(":3000", nil)
+	fmt.Println("Server started on the port 3000....")
+	fmt.Println("Follow this link : http://localhost:3000/")
 	if server_err != nil {
-		fmt.Println("Unable to Start The server")
+		fmt.Println("Sorry Unable to Start The server")
 		return
 	}
 }
@@ -127,26 +129,37 @@ func CrawlHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprint(w, result)
 }
 
 var workersChange sync.Mutex // Mutex to handle change in number of workers
 
 func setCrawlers(w http.ResponseWriter, r *http.Request) {
-	new_paidWorkers, err := strconv.Atoi(r.URL.Query().Get("paidWorkers"))
-	new_unpaidWorkers, err1 := strconv.Atoi(r.URL.Query().Get("unpaidWorkers"))
+	new_paidWorkers := MaxPaidWorkers
+	new_unpaidWorkers := MaxNonPaidWorkers
+	var err1 error = nil
+	var err2 error = nil
+	new_paidWorkers, err1 = strconv.Atoi(r.URL.Query().Get("paidWorkers"))
+	new_unpaidWorkers, err2 = strconv.Atoi(r.URL.Query().Get("unpaidWorkers"))
 
-	if err != nil || err1 != nil || new_paidWorkers <= 0 || new_unpaidWorkers <= 0 {
+	if err1 != nil && err2 != nil {
 		// Error handling
-		fmt.Println(err, err1)
+		fmt.Println(err1, err2)
 		fmt.Fprintf(w, "Input error, Please set the value correctly")
 		return
 	}
+
 	workersChange.Lock()
 	defer workersChange.Unlock()
 	initWorkers(new_paidWorkers, new_unpaidWorkers)
-	fmt.Fprintf(w, "Set paid workers to %d and unpaidworkers to %d", new_paidWorkers, new_unpaidWorkers)
+	if err1 != nil {
+		fmt.Fprintf(w, "Set Number of workers for Non paying Users to %d", new_unpaidWorkers)
+	} else if err2 != nil {
+		fmt.Fprintf(w, "Set Number of workers for Paying Users to %d", new_paidWorkers)
+	} else {
+		fmt.Fprintf(w, "Set Number of workers for Paying Users to %d and Non paying Users to %d", new_paidWorkers, new_unpaidWorkers)
+	}
 }
 
 func Worker(id int, forPaid bool) {

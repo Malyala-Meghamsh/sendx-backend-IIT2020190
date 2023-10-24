@@ -2,15 +2,17 @@ package fetch_content
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	cachePackage "sendx/cache_manager"
 	"sendx/error_handler"
+	"strings"
 
 	// "sendx/main"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 // Maintain map of URLs crawled in in-memory and store the files actually in disk
@@ -93,30 +95,6 @@ func FetchContent(inputURL string, isPaidCustomer bool) (string, error) {
 	}
 }
 
-func fetchURL(inputURL string, isPaidCustomer bool) (string, error) {
-	var retries int
-
-	if isPaidCustomer {
-		retries = 3
-	} else {
-		retries = 2
-	}
-	// Will be Retrying until our crawling is successful
-	for i := 0; i < retries; i++ {
-		res_http, err_httpGet := http.Get(inputURL)
-		if err_httpGet != nil {
-			continue
-		}
-		defer res_http.Body.Close()
-		body_http, err_httpRead := io.ReadAll(res_http.Body)
-		if err_httpRead != nil {
-			continue
-		}
-		return string(body_http), nil
-	}
-	return "", fmt.Errorf("Unable to fetch URL after " + strconv.Itoa(retries) + " retries")
-}
-
 // Cleanup every 30 minutes to maintain cache space
 func startCacheCleanup(cache *URLCache) {
 	cleanupInterval := 30 * time.Minute
@@ -134,4 +112,64 @@ func startCacheCleanup(cache *URLCache) {
 			}
 		}
 	}
+}
+
+func fetchURL(inputURL string, isPaidCustomer bool) (string, error) {
+	var retries int
+
+	if isPaidCustomer {
+		retries = 3
+	} else {
+		retries = 2
+	}
+	// Will be Retrying until our crawling is successful
+	for i := 0; i < retries; i++ {
+		// res_http, err_httpGet := http.Get(inputURL)
+		// if err_httpGet != nil {
+		// 	continue
+		// }
+		// defer res_http.Body.Close()
+		// body_http, err_httpRead := io.ReadAll(res_http.Body)
+		// if err_httpRead != nil {
+		// 	continue
+		// }
+		// return string(body_http), nil
+		s, err := crawlsite(inputURL)
+		if err != nil {
+			continue
+		}
+		return s, nil
+	}
+	return "", fmt.Errorf("Unable to fetch URL after " + strconv.Itoa(retries) + " retries")
+}
+
+// Crawling the URL
+func crawlsite(url string) (string, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var result strings.Builder
+
+	// Find and accumulate all links on the webpage
+	doc.Find("a").Each(func(i int, s *goquery.Selection) {
+		link, exists := s.Attr("href")
+		if exists {
+			result.WriteString(fmt.Sprintf("Link: %s\n", link))
+		}
+	})
+
+	// Find and accumulate all headings on the webpage
+	doc.Find(":header").Each(func(i int, s *goquery.Selection) {
+		result.WriteString(fmt.Sprintf("Heading: %s\n", s.Text()))
+	})
+
+	return result.String(), nil
 }

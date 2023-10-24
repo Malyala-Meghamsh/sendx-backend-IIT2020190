@@ -15,7 +15,7 @@ These instructions will help you set up the project on your local machine for te
     ```
 2. Change the directory
     ```bash
-        cd SENDX_PROJECT
+        cd sendx-backend-IIT2020190-main
     ```
 3. Installing the dependencies
     ``` bash

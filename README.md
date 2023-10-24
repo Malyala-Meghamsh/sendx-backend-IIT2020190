@@ -15,7 +15,7 @@ These instructions will help you set up the project on your local machine for te
     ```
 2. Change the directory
     ```bash
-        cd SENDX_PROJECT
+        cd sendx-backend-IIT2020190-main
     ```
 3. Installing the dependencies
     ``` bash
@@ -69,4 +69,4 @@ http://localhost:3000/
  - Golang (Backend)
  - GoQuery allows parsing and querying HTML documents thus making crawling easier
  ## Demo Of Project
- - [Link]()
+ - [Link](https://drive.google.com/file/d/1aFtJxGmLkx6FEFXYVEd1Ql3TD8-KZi-E/view?usp=drivesdk)
